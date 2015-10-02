@@ -89,7 +89,10 @@ struct thread
     uint8_t *stack;                     /* Saved stack pointer. */
     int priority;                       /* Priority. */
     struct list_elem allelem;           /* List element for all threads list. */
-
+	int remaining_sleep_ticks;			/* Remaining sleep ticks */
+	int orig_priority;
+	int donate_count;
+   
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
@@ -118,6 +121,10 @@ tid_t thread_create (const char *name, int priority, thread_func *, void *);
 
 void thread_block (void);
 void thread_unblock (struct thread *);
+void thread_check_sleep(struct thread *t);
+bool greater_than(const struct list_elem *a,
+				  const struct list_elem *b,
+				  void *aux);
 
 struct thread *thread_current (void);
 tid_t thread_tid (void);
@@ -130,8 +137,12 @@ void thread_yield (void);
 typedef void thread_action_func (struct thread *t, void *aux);
 void thread_foreach (thread_action_func *, void *);
 
+
 int thread_get_priority (void);
+int get_thread_priority(struct thread *t);
 void thread_set_priority (int);
+void thread_donate_priority(struct thread *t);
+void thread_revoke_priority(struct thread *t);
 
 int thread_get_nice (void);
 void thread_set_nice (int);
